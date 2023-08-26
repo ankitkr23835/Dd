@@ -67,8 +67,8 @@ async def handle_message(event):
                 all_files.append(os.path.join(root, file))
 
         # Prepare a response message with numbered options
-        options = "\n".join([f"{i + 1}. {os.path.relpath(file, user_dir)}" for i, file in enumerate(all_f$
-        response_message = f"Select files to send back (separate indices with '&'):\n{options}\nOr type '$
+        options = "\n".join([f"{i + 1}. {os.path.relpath(file, user_dir)}" for i, file in enumerate(all_files)])
+        response_message = f"Select files to send back (separate indices with '&'):\n{options}\nOr type 'all' to send all files."
         await event.respond(response_message)
 
         async def send_files(selected_indices):
@@ -78,7 +78,7 @@ async def handle_message(event):
                 await event.respond("Sending the selected files...")
                 for file_path in selected_files:
                     mime_type, _ = mimetypes.guess_type(file_path)
-                    await client.send_file(event.message.sender_id, file_path, caption=os.path.basename(f$
+                    await client.send_file(event.message.sender_id, file_path, caption=os.path.basename(file_path), force_document=True, mime_type=mime_type)
 
         @client.on(events.NewMessage)
         async def inner_handle_message(event):
@@ -87,7 +87,7 @@ async def handle_message(event):
                 await event.respond("Sending all files...")
                 for file_path in all_files:
                     mime_type, _ = mimetypes.guess_type(file_path)
-                    await client.send_file(event.message.sender_id, file_path, caption=os.path.basename(f$
+                    await client.send_file(event.message.sender_id, file_path, caption=os.path.basename(file_path), force_document=True, mime_type=mime_type)
             elif '&' in message:
                 selected_indices = message.split('&')
                 await send_files(selected_indices)
